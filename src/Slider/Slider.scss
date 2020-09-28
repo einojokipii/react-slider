@@ -1,8 +1,41 @@
 .Slider {
-  &,
   *,
   ::before,
   ::after {
     box-sizing: border-box;
+  }
+
+  width: 400px;
+  display: inline-block;
+  box-sizing: content-box;
+  padding: 8px;
+
+  $slider-rail-height: 4px;
+
+  &__rail {
+    width: 100%;
+    height: $slider-rail-height;
+    background-color: #eaeaea;
+    position: relative;
+  }
+
+  &__track {
+    height: 100%;
+    background-color: #09f;
+    position: absolute;
+    left: 0;
+  }
+
+  $slider-thumb-size: 18px;
+
+  &__thumb {
+    width: $slider-thumb-size;
+    height: $slider-thumb-size;
+    background-color: #fff;
+    border-radius: 100%;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    transform: translate(-50%, ($slider-thumb-size - $slider-rail-height) / -2);
   }
 }

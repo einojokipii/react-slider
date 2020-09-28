@@ -1,7 +1,8 @@
 {
   "env": {
     "es2021": true,
-    "node": true
+    "node": true,
+    "browser": true
   },
   "extends": [
     "eslint:recommended",
@@ -21,5 +22,7 @@
       "version": "detect"
     }
   },
-  "rules": {}
+  "rules": {
+    "jsx-a11y/no-static-element-interactions": "off"
+  }
 }
