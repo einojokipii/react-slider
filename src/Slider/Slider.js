@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useUncontrolled } from 'uncontrollable';
 import defaultStyles from './Slider.styles';
 
 function clamp(value, min, max) {
@@ -18,15 +19,19 @@ function roundToStep(value, min, step) {
   return Math.round((value - min) / step) * step + min;
 }
 
-export default function Slider({
-  value,
-  min,
-  max,
-  step,
-  onChange,
-  styles: propStyles
-}) {
-  value = clamp(value, min, max);
+export default function Slider(props) {
+  const {
+    value: propValue,
+    min,
+    max,
+    step,
+    onChange,
+    styles: propStyles
+  } = useUncontrolled(props, {
+    value: 'onChange'
+  });
+
+  const value = clamp(propValue, min, max);
   const sliderRef = useRef();
   const railRef = useRef();
 
@@ -98,11 +103,12 @@ export default function Slider({
 }
 
 Slider.propTypes = {
-  value: PropTypes.number.isRequired,
+  value: PropTypes.number,
+  defaultValue: PropTypes.number,
   min: PropTypes.number,
   max: PropTypes.number,
   step: PropTypes.number,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   styles: PropTypes.object
 };
 
