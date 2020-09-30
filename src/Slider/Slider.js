@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
-import './Slider.scss';
+import defaultStyles from './Slider.styles';
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -14,25 +14,31 @@ function pctToValue(pct, min, max) {
   return (max - min) * (pct / 100) + min;
 }
 
-function roundToStep(value, step) {
-  const rem = value % step;
-
-  if (rem < step / 2) {
-    return value - rem;
-  } else {
-    return value + (step - rem);
-  }
+function roundToStep(value, min, step) {
+  return Math.round((value - min) / step) * step + min;
 }
 
-export default function Slider({ value, min, max, step, onChange }) {
-  const railRef = useRef(null);
+export default function Slider({
+  value,
+  min,
+  max,
+  step,
+  onChange,
+  styles: propStyles
+}) {
+  value = clamp(value, min, max);
+  const sliderRef = useRef();
+  const railRef = useRef();
 
   const handleInput = e => {
     const { left, right } = railRef.current.getBoundingClientRect();
-    const x = clamp(e.clientX, left, right);
-    const pct = valueToPct(x, left, right);
-    const newValue = roundToStep(pctToValue(pct, min, max), step);
-    newValue !== value && onChange(newValue);
+    const xPct = valueToPct(e.clientX, left, right);
+
+    let newValue = pctToValue(xPct, min, max); // value ..
+    newValue = roundToStep(newValue, min, step); // ..to rounded value ..
+    newValue = clamp(newValue, min, max); // ..to clamped value
+
+    onChange(newValue);
   };
 
   const handleMouseDown = e => {
@@ -48,6 +54,13 @@ export default function Slider({ value, min, max, step, onChange }) {
   };
 
   const styles = {
+    root: { ...defaultStyles.root, ...propStyles.root },
+    rail: { ...defaultStyles.rail, ...propStyles.rail },
+    track: { ...defaultStyles.track, ...propStyles.track },
+    thumb: { ...defaultStyles.thumb, ...propStyles.thumb }
+  };
+
+  const inlineStyles = {
     track: {
       width: valueToPct(value, min, max) + '%'
     },
@@ -57,16 +70,27 @@ export default function Slider({ value, min, max, step, onChange }) {
   };
 
   return (
-    <div className="Slider" onMouseDown={handleMouseDown}>
-      <div className="Slider__rail" ref={railRef}>
-        <span className="Slider__track" style={styles.track}></span>
+    <div
+      className="Slider"
+      ref={sliderRef}
+      onMouseDown={handleMouseDown}
+      css={styles.root}
+    >
+      <div className="Slider__rail" css={styles.rail} ref={railRef}>
+        <span
+          className="Slider__track"
+          css={styles.track}
+          style={inlineStyles.track}
+        ></span>
         <span
           className="Slider__thumb"
           role="slider"
           aria-valuenow={value}
           aria-valuemin={min}
           aria-valuemax={max}
-          style={styles.thumb}
+          tabIndex="0"
+          css={styles.thumb}
+          style={inlineStyles.thumb}
         ></span>
       </div>
     </div>
@@ -78,11 +102,13 @@ Slider.propTypes = {
   min: PropTypes.number,
   max: PropTypes.number,
   step: PropTypes.number,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func.isRequired,
+  styles: PropTypes.object
 };
 
 Slider.defaultProps = {
   min: 0,
   max: 100,
-  step: 1
+  step: 1,
+  styles: {}
 };
